@@ -1,6 +1,8 @@
 #include <catch2/catch.hpp>
-// #include "particle_filter.h"
+#include "particle_filter.h"
 
-TEST_CASE("Initialise", "[Particle Filter]") {
-  REQUIRE( 1 != 1);
+TEST_CASE("Initialization does not occur on creation", "[Particle Filter]") {
+  ParticleFilter pf;
+
+  REQUIRE(  pf.initialized() == false );
 }

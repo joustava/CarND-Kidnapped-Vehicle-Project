@@ -1,19 +1,26 @@
-project(PARTICLE_FILTER)
-
 cmake_minimum_required (VERSION 3.5)
 
-add_definitions(-std=c++11)
+# project info
+project(particle_filter
+  VERSION 0.0.1
+  DESCRIPTION "Particle Filter project"
+  LANGUAGES CXX
+)
 
+# create target variables
+set(APP_NAME ${PROJECT_NAME})
+set(LIB_NAME ${PROJECT_NAME}_lib)
+set(TEST_LIB_NAME ${LIB_NAME}_test)
+
+# set build flags
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
-file(GLOB HEADERS src/*.h)
-file(GLOB HEADERS_HPP src/*.hpp)
+# set ./bin as output dir for binaries 
+set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin) 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-set(sources src/particle_filter.cpp src/main.cpp ${HEADERS} ${HEADERS_HPP})
-
-
-
+# extra householding needed when on Mac
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 include_directories(/usr/local/include)
@@ -24,9 +31,11 @@ link_directories(/usr/local/Cellar/libuv/1*/lib)
 
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
+# include CMakeList rules for lib, test and app targets.
+add_subdirectory(src)
+add_subdirectory(tests)
+# add_subdirectory(app)
+# add_executable(particle_filter ${sources})
 
-add_executable(particle_filter ${sources})
-
-
-target_link_libraries(particle_filter z ssl uv uWS)
+# target_link_libraries(particle_filter z ssl uv uWS)
 

@@ -9,13 +9,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(particle_filter_tests
-  ../src/particle_filter.h
-  ../src/particle_filter.cpp
+add_executable(${TEST_LIB_NAME}
   support.cpp
   particle_filter_test.cpp
 )
 
-target_compile_features(particle_filter_tests PRIVATE cxx_std_17)
+target_compile_features(${TEST_LIB_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(particle_filter_tests PRIVATE Catch2::Catch2)
+target_link_libraries(${TEST_LIB_NAME} PRIVATE "${LIB_NAME}" Catch2::Catch2)
