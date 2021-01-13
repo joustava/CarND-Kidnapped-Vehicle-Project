@@ -15,25 +15,21 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <float.h>
 
 #include "helper_functions.h"
 
 using std::string;
 using std::vector;
 using std::normal_distribution;
+using std::min_element;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
-  /**
-   * TODO: Set the number of particles. Initialize all particles to 
-   *   first position (based on estimates of x, y, theta and their uncertainties
-   *   from GPS) and all weights to 1. 
-   * TODO: Add random Gaussian noise to each particle.
-   * NOTE: Consult particle_filter.h for more information about this method 
-   *   (and others in this file).
-   */
+  
   std::default_random_engine gen;  // random generator
   double std_x, std_y, std_theta;  // Standard deviations for x, y, and theta
-  num_particles = 100;  // TODO: Set the number of particles
+  num_particles = 100;
+  weights = vector<double>(num_particles, 1.0);
 
   // TODO: Set standard deviations for x, y, and theta
   std_x = std[0];
@@ -43,43 +39,52 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   normal_distribution<double> dist_x(x, std_x);
   normal_distribution<double> dist_y(y, std_y);
   normal_distribution<double> dist_theta(theta, std_theta);
+  normal_distribution<double> dist_noise(0, 0.1);
 
   for(int i = 0; i < num_particles; i++) {
     Particle particle;
     particle.id = i;
-    particle.x = dist_x(gen);
-    particle.y = dist_y(gen);
-    particle.theta = dist_theta(gen);
+    particle.x = dist_x(gen) + dist_noise(gen);
+    particle.y = dist_y(gen) + dist_noise(gen);
+    particle.theta = dist_theta(gen) + dist_noise(gen);
     particle.weight = 1.0;
     particles.push_back(particle);
-    weights.push_back(1.0);
   }
   is_initialized = true;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], 
                                 double velocity, double yaw_rate) {
-  /**
-   * TODO: Add measurements to each particle and add random Gaussian noise.
-   * NOTE: When adding noise you may find std::normal_distribution 
-   *   and std::default_random_engine useful.
-   *  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
-   *  http://www.cplusplus.com/reference/random/default_random_engine/
-   */
+  std::default_random_engine gen;
+  normal_distribution<double> dist_x_Q(0, std_pos[0]);
+  normal_distribution<double> dist_y_Q(0.0, std_pos[1]);
+  normal_distribution<double> dist_theta_Q(0.0, std_pos[2]);
 
+  for(Particle &particle: particles) {
+    particle.x += velocity/yaw_rate * (sin(particle.theta + (yaw_rate * delta_t) - sin(particle.theta)));
+    particle.y += velocity/yaw_rate * (cos(particle.theta) - cos(particle.theta + (yaw_rate * delta_t)));
+    particle.theta += yaw_rate * delta_t;
+
+    particle.x += dist_x_Q(gen);
+    particle.y += dist_y_Q(gen);
+    particle.theta += dist_theta_Q(gen);
+  }
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, 
                                      vector<LandmarkObs>& observations) {
-  /**
-   * TODO: Find the predicted measurement that is closest to each 
-   *   observed measurement and assign the observed measurement to this 
-   *   particular landmark.
-   * NOTE: this method will NOT be called by the grading code. But you will 
-   *   probably find it useful to implement this method and use it as a helper 
-   *   during the updateWeights phase.
-   */
-
+    double min_distance = DBL_MAX;
+    LandmarkObs closest_prediction;
+    
+    for(LandmarkObs &observation: observations) {
+      for(LandmarkObs &prediction: predicted) {
+        double current_distance = dist(prediction.x, observation.x, prediction.y, observation.y);
+        if(current_distance < min_distance) {
+          closest_prediction = prediction;
+        }
+      }
+      observation.id = closest_prediction.id;
+    }
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
@@ -97,7 +102,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   https://www.willamette.edu/~gorr/classes/GeneralGraphics/Transforms/transforms2d.htm
    *   and the following is a good resource for the actual equation to implement
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
-   */
+   */  
+  // 1. transform observations to map coordinates.
+  // xm=xp+(cosθ×xc)−(sinθ×yc)
+  // ym=yp+(sinθ×xc)+(cosθ×yc)
+
 
 }
 
