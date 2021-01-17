@@ -12,4 +12,4 @@ cmake -S ./tests -B build
 cd build
 make $*
 
-./build/particle_filter_tests
+./bin/particle_filter_tests

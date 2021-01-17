@@ -1,4 +1,3 @@
-
 add_library("${LIB_NAME}"
   particle_filter.cpp  
 )

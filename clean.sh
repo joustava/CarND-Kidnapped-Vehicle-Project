@@ -8,7 +8,7 @@
 # Remove the dedicated output directories
 cd `dirname $0`
 
-rm -rf build
+rm -rf build/*
 
 # We're done!
 echo Cleaned up the project!

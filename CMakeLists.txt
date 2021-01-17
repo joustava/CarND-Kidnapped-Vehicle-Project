@@ -34,8 +34,4 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # include CMakeList rules for lib, test and app targets.
 add_subdirectory(src)
 add_subdirectory(tests)
-# add_subdirectory(app)
-# add_executable(particle_filter ${sources})
-
-# target_link_libraries(particle_filter z ssl uv uWS)
-
+add_subdirectory(app)

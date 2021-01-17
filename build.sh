@@ -12,6 +12,8 @@
 # Go into the directory where this bash script is contained.
 cd `dirname $0`
 
+./clean.sh
+
 # Compile code.
 mkdir -p build
 cd build
